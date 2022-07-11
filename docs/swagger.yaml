@@ -1,0 +1,192 @@
+basePath: /v1
+definitions:
+  entity.Account:
+    properties:
+      balance:
+        type: number
+      created_dt:
+        type: string
+      id:
+        type: integer
+    type: object
+  v1.correctResponse:
+    properties:
+      data: {}
+    type: object
+  v1.response:
+    properties:
+      error:
+        example: message
+        type: string
+    type: object
+  v1.transferAccountPair:
+    properties:
+      accrualAccount:
+        $ref: '#/definitions/entity.Account'
+      redeemAccount:
+        $ref: '#/definitions/entity.Account'
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Simple transaction service
+  title: Avito test work API
+  version: "1.0"
+paths:
+  /account:
+    post:
+      consumes:
+      - application/json
+      description: Create a new account with default fields and return in the response
+      operationId: create
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.correctResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Create new account
+      tags:
+      - account
+  /account/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Returns account fields by ID in the response
+      operationId: getById
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.correctResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Get account by ID
+      tags:
+      - account
+    put:
+      consumes:
+      - application/json
+      description: Changing the account balance to the amount passed in the parameter
+      operationId: updBalance
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: The value by which the balance changes
+        in: query
+        name: amount
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.correctResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Update balance
+      tags:
+      - account
+  /account/amount/{redeemId}/transfer/{accrId}:
+    put:
+      consumes:
+      - application/json
+      description: Transferring amount of money between accounts
+      operationId: transferAmount
+      parameters:
+      - description: Account ID for redeem funds
+        in: path
+        name: redeemId
+        required: true
+        type: integer
+      - description: Account ID for accrual funds
+        in: path
+        name: accrId
+        required: true
+        type: integer
+      - description: Amount of money to transfer
+        in: query
+        name: amount
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.transferAccountPair'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Money transaction
+      tags:
+      - account
+  /account/history/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Return history of all account's transactions
+      operationId: history
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: The value of limit in pagination
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: The value of offset in pagination
+        in: query
+        name: offset
+        required: true
+        type: integer
+      - description: Column name to sort
+        in: query
+        name: sort
+        type: string
+      - description: Descending sort flag
+        in: query
+        name: isDecreasing
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.correctResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.response'
+      summary: Transaction history
+      tags:
+      - account
+swagger: "2.0"

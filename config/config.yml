@@ -1,0 +1,10 @@
+app:
+  name: 'avito-test-work'
+  version: '1.0.0'
+
+logger:
+  log_level: 'debug'
+  rollbar_env: 'avito-test-work'
+
+postgres:
+  pool_max: 2

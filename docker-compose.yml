@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres
+    hostname: postgres
+    image: postgres:13.3
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pass}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+    ports:
+      - 5432:5432
+
+  app:
+    build: .
+    container_name: app
+    hostname: app
+    image: app
+    environment:
+      - PG_URL=postgres://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-pass}@${POSTGRES_DB:-postgres}:5432/${POSTGRES_DB:-postgres}
+      - PORT=${HTTP_PORT:-8080}
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+
+  integration:
+    profiles: ["integration-test"]
+    build:
+      context: .
+      dockerfile: ./integration-test/Dockerfile
+    container_name: integration
+    image: integration
+    depends_on:
+      - app
